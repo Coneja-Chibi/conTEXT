@@ -278,114 +278,172 @@ export interface ModelQueryOptions {
 }
 
 // ============================================================================
-// Provider Constants
+// Provider Branding
 // ============================================================================
 
+/**
+ * Provider branding with lobe-icons
+ * @see https://lobehub.com/icons for icon gallery
+ * Icon format: 'lobe-icons:{name}' or 'lobe-icons:{name}-color'
+ */
 export const KNOWN_PROVIDERS: Record<string, Omit<ModelProvider, 'id'>> = {
-  'anthropic': {
-    name: 'Anthropic',
-    color: '#D4A574',
-    icon: '🎭',
-  },
-  'openai': {
-    name: 'OpenAI',
-    color: '#10A37F',
-    icon: '🤖',
-  },
-  'google': {
-    name: 'Google',
-    color: '#4285F4',
-    icon: '✨',
-  },
-  'meta-llama': {
-    name: 'Meta',
-    color: '#0668E1',
-    icon: '🦙',
-  },
-  'mistralai': {
-    name: 'Mistral',
-    color: '#FF7000',
-    icon: '🌬️',
-  },
-  'cohere': {
-    name: 'Cohere',
-    color: '#D18EE2',
-    icon: '🔮',
-  },
-  'deepseek': {
-    name: 'DeepSeek',
-    color: '#4D6BFE',
-    icon: '🔍',
-  },
-  'x-ai': {
-    name: 'xAI',
-    color: '#000000',
-    icon: '🅧',
-  },
-  'qwen': {
-    name: 'Qwen',
-    color: '#615EFF',
-    icon: '🌸',
-  },
-  'microsoft': {
-    name: 'Microsoft',
-    color: '#00A4EF',
-    icon: '🪟',
-  },
-  'perplexity': {
-    name: 'Perplexity',
-    color: '#20808D',
-    icon: '🔎',
-  },
-  'nous': {
-    name: 'Nous Research',
-    color: '#8B5CF6',
-    icon: '🧠',
-  },
-  'nousresearch': {
-    name: 'Nous Research',
-    color: '#8B5CF6',
-    icon: '🧠',
-  },
-  '01-ai': {
-    name: '01.AI',
-    color: '#FF6B6B',
-    icon: '🎯',
-  },
-  'thudm': {
-    name: 'Zhipu AI',
-    color: '#00D4AA',
-    icon: '🐲',
-  },
-  'nvidia': {
-    name: 'NVIDIA',
-    color: '#76B900',
-    icon: '🟢',
-  },
-  'amazon': {
-    name: 'Amazon',
-    color: '#FF9900',
-    icon: '📦',
-  },
-  'ai21': {
-    name: 'AI21 Labs',
-    color: '#6366F1',
-    icon: '🔬',
-  },
-  'databricks': {
-    name: 'Databricks',
-    color: '#FF3621',
-    icon: '🧱',
-  },
-  'inflection': {
-    name: 'Inflection',
-    color: '#7C3AED',
-    icon: '💜',
-  },
+  // === Tier 1: Major AI Labs ===
+  'anthropic':    { name: 'Anthropic',      color: '#D4A574', icon: 'lobe-icons:anthropic' },
+  'openai':       { name: 'OpenAI',         color: '#10A37F', icon: 'lobe-icons:openai' },
+  'google':       { name: 'Google',         color: '#4285F4', icon: 'lobe-icons:google-color' },
+  'meta-llama':   { name: 'Meta',           color: '#0668E1', icon: 'lobe-icons:meta-color' },
+  'mistralai':    { name: 'Mistral',        color: '#FF7000', icon: 'lobe-icons:mistral-color' },
+  'x-ai':         { name: 'xAI',            color: '#1DA1F2', icon: 'lobe-icons:xai' },
+
+  // === Tier 2: Major Players ===
+  'deepseek':     { name: 'DeepSeek',       color: '#4D6BFE', icon: 'lobe-icons:deepseek-color' },
+  'cohere':       { name: 'Cohere',         color: '#D18EE2', icon: 'lobe-icons:cohere-color' },
+  'qwen':         { name: 'Qwen',           color: '#615EFF', icon: 'lobe-icons:qwen-color' },
+  'alibaba':      { name: 'Alibaba',        color: '#FF6A00', icon: 'lobe-icons:alibaba-color' },
+  'microsoft':    { name: 'Microsoft',      color: '#00A4EF', icon: 'lobe-icons:azure-color' },
+  'perplexity':   { name: 'Perplexity',     color: '#20808D', icon: 'lobe-icons:perplexity-color' },
+  'nvidia':       { name: 'NVIDIA',         color: '#76B900', icon: 'lobe-icons:nvidia-color' },
+
+  // === Research Labs ===
+  'nous':         { name: 'Nous Research',  color: '#8B5CF6', icon: 'lobe-icons:nousresearch' },
+  'nousresearch': { name: 'Nous Research',  color: '#8B5CF6', icon: 'lobe-icons:nousresearch' },
+  'ai21':         { name: 'AI21 Labs',      color: '#6366F1', icon: 'lobe-icons:ai21-brand-color' },
+  'thudm':        { name: 'Zhipu AI',       color: '#00D4AA', icon: 'lobe-icons:zhipu-color' },
+  '01-ai':        { name: '01.AI',          color: '#FF6B6B', icon: 'lobe-icons:yi-color' },
+  'inflection':   { name: 'Inflection',     color: '#7C3AED', icon: 'lobe-icons:inflection' },
+
+  // === Cloud Providers ===
+  'amazon':       { name: 'Amazon',         color: '#FF9900', icon: 'lobe-icons:bedrock-color' },
+  'databricks':   { name: 'Databricks',     color: '#FF3621', icon: 'lobe-icons:dbrx-color' },
+  'together':     { name: 'Together',       color: '#0EA5E9', icon: 'lobe-icons:together-color' },
+  'groq':         { name: 'Groq',           color: '#F55036', icon: 'lobe-icons:groq' },
+  'fireworks-ai': { name: 'Fireworks',      color: '#FF6B35', icon: 'lobe-icons:fireworks-color' },
+  'deepinfra':    { name: 'DeepInfra',      color: '#3B82F6', icon: 'lobe-icons:deepinfra-color' },
+  'replicate':    { name: 'Replicate',      color: '#000000', icon: 'lobe-icons:replicate' },
+  'anyscale':     { name: 'Anyscale',       color: '#00D4FF', icon: 'lobe-icons:anyscale-color' },
+  'cloudflare':   { name: 'Cloudflare',     color: '#F6821F', icon: 'lobe-icons:cloudflare-color' },
+  'sambanova':    { name: 'SambaNova',      color: '#FF5722', icon: 'lobe-icons:sambanova-color' },
+  'cerebras':     { name: 'Cerebras',       color: '#00D9FF', icon: 'lobe-icons:cerebras-color' },
+
+  // === Chinese AI ===
+  'baichuan':     { name: 'Baichuan',       color: '#4F46E5', icon: 'lobe-icons:baichuan-color' },
+  'moonshot':     { name: 'Moonshot',       color: '#1E293B', icon: 'lobe-icons:moonshot' },
+  'minimax':      { name: 'MiniMax',        color: '#3B82F6', icon: 'lobe-icons:minimax-color' },
+  'zhipu':        { name: 'Zhipu AI',       color: '#00D4AA', icon: 'lobe-icons:zhipu-color' },
+  'stepfun':      { name: 'StepFun',        color: '#6366F1', icon: 'lobe-icons:stepfun-color' },
+  'baidu':        { name: 'Baidu',          color: '#2932E1', icon: 'lobe-icons:baidu-color' },
+  'tencent':      { name: 'Tencent',        color: '#00C853', icon: 'lobe-icons:tencent-color' },
+  'bytedance':    { name: 'ByteDance',      color: '#3B82F6', icon: 'lobe-icons:bytedance-color' },
+
+  // === Open Source / Community ===
+  'huggingface':  { name: 'Hugging Face',   color: '#FFD21E', icon: 'lobe-icons:huggingface-color' },
+  'ollama':       { name: 'Ollama',         color: '#000000', icon: 'lobe-icons:ollama' },
+  'openrouter':   { name: 'OpenRouter',     color: '#6366F1', icon: 'lobe-icons:openrouter' },
 };
 
 export const UNKNOWN_PROVIDER: Omit<ModelProvider, 'id'> = {
   name: 'Unknown',
   color: '#6B7280',
-  icon: '❓',
+  icon: 'lobe-icons:openrouter',
 };
+
+// ============================================================================
+// Model Icon Overrides
+// ============================================================================
+
+/**
+ * Model-specific icons (when model brand differs from provider brand)
+ * Key = model slug prefix (matched with startsWith)
+ *
+ * Example: "claude-3.5-sonnet" starts with "claude" → uses claude-color icon
+ */
+export const MODEL_ICONS: Record<string, string> = {
+  // Anthropic - Claude has its own icon
+  'claude':       'lobe-icons:claude-color',
+
+  // Google - Gemini/Gemma have their own icons
+  'gemini':       'lobe-icons:gemini-color',
+  'gemma':        'lobe-icons:gemma-color',
+  'palm':         'lobe-icons:palm-color',
+
+  // xAI - Grok has its own icon
+  'grok':         'lobe-icons:grok',
+
+  // OpenAI - DALL-E and Sora have their own icons
+  'dall-e':       'lobe-icons:dalle-color',
+  'sora':         'lobe-icons:sora-color',
+
+  // Cohere - Command and Aya
+  'command':      'lobe-icons:cohere-color',
+  'aya':          'lobe-icons:aya-color',
+
+  // Databricks
+  'dbrx':         'lobe-icons:dbrx-color',
+
+  // Chinese models with distinct branding
+  'yi':           'lobe-icons:yi-color',
+  'glm':          'lobe-icons:chatglm-color',
+  'chatglm':      'lobe-icons:chatglm-color',
+  'ernie':        'lobe-icons:wenxin-color',
+  'wenxin':       'lobe-icons:wenxin-color',
+  'doubao':       'lobe-icons:doubao-color',
+  'hunyuan':      'lobe-icons:hunyuan-color',
+  'kimi':         'lobe-icons:kimi-color',
+  'spark':        'lobe-icons:spark-color',
+
+  // Image generation models
+  'flux':         'lobe-icons:flux',
+  'stable-diffusion': 'lobe-icons:stability-color',
+  'sd':           'lobe-icons:stability-color',
+  'midjourney':   'lobe-icons:midjourney',
+
+  // Community models
+  'dolphin':      'lobe-icons:dolphin',
+  'solar':        'lobe-icons:upstage-color',
+  'phi':          'lobe-icons:azure-color',
+};
+
+/**
+ * Model-specific colors (when model color differs from provider)
+ * Only needed for models with distinctly different branding
+ */
+export const MODEL_COLORS: Record<string, string> = {
+  'claude':       '#D4A574',
+  'gemini':       '#4285F4',
+  'grok':         '#1DA1F2',
+  'yi':           '#FF6B6B',
+};
+
+// ============================================================================
+// Branding Utility Functions
+// ============================================================================
+
+/**
+ * Get icon for a model (checks model overrides first, then provider)
+ */
+export function getModelIcon(modelSlug: string, providerId: string): string {
+  // Exact match
+  if (MODEL_ICONS[modelSlug]) return MODEL_ICONS[modelSlug];
+
+  // Prefix match (claude-3.5-sonnet → claude)
+  const prefix = Object.keys(MODEL_ICONS).find(k => modelSlug.startsWith(k));
+  if (prefix) return MODEL_ICONS[prefix];
+
+  // Fall back to provider icon, then unknown provider icon
+  return KNOWN_PROVIDERS[providerId]?.icon ?? UNKNOWN_PROVIDER.icon ?? 'lobe-icons:openrouter';
+}
+
+/**
+ * Get color for a model (checks model overrides first, then provider)
+ */
+export function getModelColor(modelSlug: string, providerId: string): string {
+  // Exact match
+  if (MODEL_COLORS[modelSlug]) return MODEL_COLORS[modelSlug];
+
+  // Prefix match
+  const prefix = Object.keys(MODEL_COLORS).find(k => modelSlug.startsWith(k));
+  if (prefix) return MODEL_COLORS[prefix];
+
+  // Fall back to provider color
+  return KNOWN_PROVIDERS[providerId]?.color ?? UNKNOWN_PROVIDER.color;
+}

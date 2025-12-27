@@ -61,112 +61,114 @@ This model is currently powered by Mistral-7B-v0.2, and incorporates a "better" 
 
 // src/types.ts
 var KNOWN_PROVIDERS = {
-  "anthropic": {
-    name: "Anthropic",
-    color: "#D4A574",
-    icon: "\u{1F3AD}"
-  },
-  "openai": {
-    name: "OpenAI",
-    color: "#10A37F",
-    icon: "\u{1F916}"
-  },
-  "google": {
-    name: "Google",
-    color: "#4285F4",
-    icon: "\u2728"
-  },
-  "meta-llama": {
-    name: "Meta",
-    color: "#0668E1",
-    icon: "\u{1F999}"
-  },
-  "mistralai": {
-    name: "Mistral",
-    color: "#FF7000",
-    icon: "\u{1F32C}\uFE0F"
-  },
-  "cohere": {
-    name: "Cohere",
-    color: "#D18EE2",
-    icon: "\u{1F52E}"
-  },
-  "deepseek": {
-    name: "DeepSeek",
-    color: "#4D6BFE",
-    icon: "\u{1F50D}"
-  },
-  "x-ai": {
-    name: "xAI",
-    color: "#000000",
-    icon: "\u{1F167}"
-  },
-  "qwen": {
-    name: "Qwen",
-    color: "#615EFF",
-    icon: "\u{1F338}"
-  },
-  "microsoft": {
-    name: "Microsoft",
-    color: "#00A4EF",
-    icon: "\u{1FA9F}"
-  },
-  "perplexity": {
-    name: "Perplexity",
-    color: "#20808D",
-    icon: "\u{1F50E}"
-  },
-  "nous": {
-    name: "Nous Research",
-    color: "#8B5CF6",
-    icon: "\u{1F9E0}"
-  },
-  "nousresearch": {
-    name: "Nous Research",
-    color: "#8B5CF6",
-    icon: "\u{1F9E0}"
-  },
-  "01-ai": {
-    name: "01.AI",
-    color: "#FF6B6B",
-    icon: "\u{1F3AF}"
-  },
-  "thudm": {
-    name: "Zhipu AI",
-    color: "#00D4AA",
-    icon: "\u{1F432}"
-  },
-  "nvidia": {
-    name: "NVIDIA",
-    color: "#76B900",
-    icon: "\u{1F7E2}"
-  },
-  "amazon": {
-    name: "Amazon",
-    color: "#FF9900",
-    icon: "\u{1F4E6}"
-  },
-  "ai21": {
-    name: "AI21 Labs",
-    color: "#6366F1",
-    icon: "\u{1F52C}"
-  },
-  "databricks": {
-    name: "Databricks",
-    color: "#FF3621",
-    icon: "\u{1F9F1}"
-  },
-  "inflection": {
-    name: "Inflection",
-    color: "#7C3AED",
-    icon: "\u{1F49C}"
-  }
+  // === Tier 1: Major AI Labs ===
+  "anthropic": { name: "Anthropic", color: "#D4A574", icon: "lobe-icons:anthropic" },
+  "openai": { name: "OpenAI", color: "#10A37F", icon: "lobe-icons:openai" },
+  "google": { name: "Google", color: "#4285F4", icon: "lobe-icons:google-color" },
+  "meta-llama": { name: "Meta", color: "#0668E1", icon: "lobe-icons:meta-color" },
+  "mistralai": { name: "Mistral", color: "#FF7000", icon: "lobe-icons:mistral-color" },
+  "x-ai": { name: "xAI", color: "#1DA1F2", icon: "lobe-icons:xai" },
+  // === Tier 2: Major Players ===
+  "deepseek": { name: "DeepSeek", color: "#4D6BFE", icon: "lobe-icons:deepseek-color" },
+  "cohere": { name: "Cohere", color: "#D18EE2", icon: "lobe-icons:cohere-color" },
+  "qwen": { name: "Qwen", color: "#615EFF", icon: "lobe-icons:qwen-color" },
+  "alibaba": { name: "Alibaba", color: "#FF6A00", icon: "lobe-icons:alibaba-color" },
+  "microsoft": { name: "Microsoft", color: "#00A4EF", icon: "lobe-icons:azure-color" },
+  "perplexity": { name: "Perplexity", color: "#20808D", icon: "lobe-icons:perplexity-color" },
+  "nvidia": { name: "NVIDIA", color: "#76B900", icon: "lobe-icons:nvidia-color" },
+  // === Research Labs ===
+  "nous": { name: "Nous Research", color: "#8B5CF6", icon: "lobe-icons:nousresearch" },
+  "nousresearch": { name: "Nous Research", color: "#8B5CF6", icon: "lobe-icons:nousresearch" },
+  "ai21": { name: "AI21 Labs", color: "#6366F1", icon: "lobe-icons:ai21-brand-color" },
+  "thudm": { name: "Zhipu AI", color: "#00D4AA", icon: "lobe-icons:zhipu-color" },
+  "01-ai": { name: "01.AI", color: "#FF6B6B", icon: "lobe-icons:yi-color" },
+  "inflection": { name: "Inflection", color: "#7C3AED", icon: "lobe-icons:inflection" },
+  // === Cloud Providers ===
+  "amazon": { name: "Amazon", color: "#FF9900", icon: "lobe-icons:bedrock-color" },
+  "databricks": { name: "Databricks", color: "#FF3621", icon: "lobe-icons:dbrx-color" },
+  "together": { name: "Together", color: "#0EA5E9", icon: "lobe-icons:together-color" },
+  "groq": { name: "Groq", color: "#F55036", icon: "lobe-icons:groq" },
+  "fireworks-ai": { name: "Fireworks", color: "#FF6B35", icon: "lobe-icons:fireworks-color" },
+  "deepinfra": { name: "DeepInfra", color: "#3B82F6", icon: "lobe-icons:deepinfra-color" },
+  "replicate": { name: "Replicate", color: "#000000", icon: "lobe-icons:replicate" },
+  "anyscale": { name: "Anyscale", color: "#00D4FF", icon: "lobe-icons:anyscale-color" },
+  "cloudflare": { name: "Cloudflare", color: "#F6821F", icon: "lobe-icons:cloudflare-color" },
+  "sambanova": { name: "SambaNova", color: "#FF5722", icon: "lobe-icons:sambanova-color" },
+  "cerebras": { name: "Cerebras", color: "#00D9FF", icon: "lobe-icons:cerebras-color" },
+  // === Chinese AI ===
+  "baichuan": { name: "Baichuan", color: "#4F46E5", icon: "lobe-icons:baichuan-color" },
+  "moonshot": { name: "Moonshot", color: "#1E293B", icon: "lobe-icons:moonshot" },
+  "minimax": { name: "MiniMax", color: "#3B82F6", icon: "lobe-icons:minimax-color" },
+  "zhipu": { name: "Zhipu AI", color: "#00D4AA", icon: "lobe-icons:zhipu-color" },
+  "stepfun": { name: "StepFun", color: "#6366F1", icon: "lobe-icons:stepfun-color" },
+  "baidu": { name: "Baidu", color: "#2932E1", icon: "lobe-icons:baidu-color" },
+  "tencent": { name: "Tencent", color: "#00C853", icon: "lobe-icons:tencent-color" },
+  "bytedance": { name: "ByteDance", color: "#3B82F6", icon: "lobe-icons:bytedance-color" },
+  // === Open Source / Community ===
+  "huggingface": { name: "Hugging Face", color: "#FFD21E", icon: "lobe-icons:huggingface-color" },
+  "ollama": { name: "Ollama", color: "#000000", icon: "lobe-icons:ollama" },
+  "openrouter": { name: "OpenRouter", color: "#6366F1", icon: "lobe-icons:openrouter" }
 };
 var UNKNOWN_PROVIDER = {
   name: "Unknown",
   color: "#6B7280",
-  icon: "\u2753"
+  icon: "lobe-icons:openrouter"
 };
+var MODEL_ICONS = {
+  // Anthropic - Claude has its own icon
+  "claude": "lobe-icons:claude-color",
+  // Google - Gemini/Gemma have their own icons
+  "gemini": "lobe-icons:gemini-color",
+  "gemma": "lobe-icons:gemma-color",
+  "palm": "lobe-icons:palm-color",
+  // xAI - Grok has its own icon
+  "grok": "lobe-icons:grok",
+  // OpenAI - DALL-E and Sora have their own icons
+  "dall-e": "lobe-icons:dalle-color",
+  "sora": "lobe-icons:sora-color",
+  // Cohere - Command and Aya
+  "command": "lobe-icons:cohere-color",
+  "aya": "lobe-icons:aya-color",
+  // Databricks
+  "dbrx": "lobe-icons:dbrx-color",
+  // Chinese models with distinct branding
+  "yi": "lobe-icons:yi-color",
+  "glm": "lobe-icons:chatglm-color",
+  "chatglm": "lobe-icons:chatglm-color",
+  "ernie": "lobe-icons:wenxin-color",
+  "wenxin": "lobe-icons:wenxin-color",
+  "doubao": "lobe-icons:doubao-color",
+  "hunyuan": "lobe-icons:hunyuan-color",
+  "kimi": "lobe-icons:kimi-color",
+  "spark": "lobe-icons:spark-color",
+  // Image generation models
+  "flux": "lobe-icons:flux",
+  "stable-diffusion": "lobe-icons:stability-color",
+  "sd": "lobe-icons:stability-color",
+  "midjourney": "lobe-icons:midjourney",
+  // Community models
+  "dolphin": "lobe-icons:dolphin",
+  "solar": "lobe-icons:upstage-color",
+  "phi": "lobe-icons:azure-color"
+};
+var MODEL_COLORS = {
+  "claude": "#D4A574",
+  "gemini": "#4285F4",
+  "grok": "#1DA1F2",
+  "yi": "#FF6B6B"
+};
+function getModelIcon(modelSlug, providerId) {
+  if (MODEL_ICONS[modelSlug]) return MODEL_ICONS[modelSlug];
+  const prefix = Object.keys(MODEL_ICONS).find((k) => modelSlug.startsWith(k));
+  if (prefix) return MODEL_ICONS[prefix];
+  return KNOWN_PROVIDERS[providerId]?.icon ?? UNKNOWN_PROVIDER.icon ?? "lobe-icons:openrouter";
+}
+function getModelColor(modelSlug, providerId) {
+  if (MODEL_COLORS[modelSlug]) return MODEL_COLORS[modelSlug];
+  const prefix = Object.keys(MODEL_COLORS).find((k) => modelSlug.startsWith(k));
+  if (prefix) return MODEL_COLORS[prefix];
+  return KNOWN_PROVIDERS[providerId]?.color ?? UNKNOWN_PROVIDER.color;
+}
 
 // src/parser.ts
 var REGISTRY_VERSION = 2;
@@ -179,16 +181,22 @@ function parseModelSlug(modelId) {
   const parts = modelId.split("/");
   return parts.slice(1).join("/") || modelId;
 }
-function getProviderInfo(providerId) {
+function getProviderInfo(providerId, modelSlug) {
   const known = KNOWN_PROVIDERS[providerId];
   if (known) {
-    return { id: providerId, ...known };
+    return {
+      id: providerId,
+      name: known.name,
+      color: getModelColor(modelSlug, providerId),
+      icon: getModelIcon(modelSlug, providerId)
+    };
   }
   const generatedName = providerId.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   return {
     id: providerId,
-    ...UNKNOWN_PROVIDER,
-    name: generatedName
+    name: generatedName,
+    color: getModelColor(modelSlug, providerId),
+    icon: getModelIcon(modelSlug, providerId)
   };
 }
 function parsePricing(pricing) {
@@ -310,17 +318,18 @@ function parseRequestLimits(model) {
 }
 function transformModel(raw) {
   const providerId = parseProviderId(raw.id);
+  const modelSlug = parseModelSlug(raw.id);
   const now = (/* @__PURE__ */ new Date()).toISOString();
   return {
     // === Identification ===
     id: raw.id,
-    slug: parseModelSlug(raw.id),
+    slug: modelSlug,
     canonicalSlug: raw.canonical_slug,
     name: raw.name,
     description: raw.description,
     huggingFaceId: raw.hugging_face_id || void 0,
-    // === Provider ===
-    provider: getProviderInfo(providerId),
+    // === Provider (with model-specific icon/color overrides) ===
+    provider: getProviderInfo(providerId, modelSlug),
     // === Context & Tokens ===
     contextLength: raw.context_length,
     maxCompletionTokens: raw.max_completion_tokens || raw.top_provider?.max_completion_tokens || Math.min(raw.context_length, 4096),
@@ -904,6 +913,8 @@ function getStats(models) {
 
 exports.FALLBACK_MODELS = FALLBACK_MODELS;
 exports.KNOWN_PROVIDERS = KNOWN_PROVIDERS;
+exports.MODEL_COLORS = MODEL_COLORS;
+exports.MODEL_ICONS = MODEL_ICONS;
 exports.UNKNOWN_PROVIDER = UNKNOWN_PROVIDER;
 exports.buildRegistry = buildRegistry;
 exports.fetchFromOpenRouter = fetchFromOpenRouter;
@@ -916,6 +927,8 @@ exports.formatPrice = formatPrice;
 exports.getBudgetStatus = getBudgetStatus;
 exports.getContextLimit = getContextLimit;
 exports.getFallbackRegistry = getFallbackRegistry;
+exports.getModelColor = getModelColor;
+exports.getModelIcon = getModelIcon;
 exports.getProviders = getProviders;
 exports.getStats = getStats;
 exports.getTierEmoji = getTierEmoji;

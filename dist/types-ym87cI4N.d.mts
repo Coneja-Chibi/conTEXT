@@ -195,7 +195,32 @@ interface ModelQueryOptions {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
 }
+/**
+ * Provider branding with lobe-icons
+ * @see https://lobehub.com/icons for icon gallery
+ * Icon format: 'lobe-icons:{name}' or 'lobe-icons:{name}-color'
+ */
 declare const KNOWN_PROVIDERS: Record<string, Omit<ModelProvider, 'id'>>;
 declare const UNKNOWN_PROVIDER: Omit<ModelProvider, 'id'>;
+/**
+ * Model-specific icons (when model brand differs from provider brand)
+ * Key = model slug prefix (matched with startsWith)
+ *
+ * Example: "claude-3.5-sonnet" starts with "claude" → uses claude-color icon
+ */
+declare const MODEL_ICONS: Record<string, string>;
+/**
+ * Model-specific colors (when model color differs from provider)
+ * Only needed for models with distinctly different branding
+ */
+declare const MODEL_COLORS: Record<string, string>;
+/**
+ * Get icon for a model (checks model overrides first, then provider)
+ */
+declare function getModelIcon(modelSlug: string, providerId: string): string;
+/**
+ * Get color for a model (checks model overrides first, then provider)
+ */
+declare function getModelColor(modelSlug: string, providerId: string): string;
 
-export { type InputModality as I, KNOWN_PROVIDERS as K, type LLMModel as L, type ModelRegistry as M, type OpenRouterModel as O, type RegistryMetadata as R, type SupportedParameter as S, UNKNOWN_PROVIDER as U, type ModelSizeTier as a, type ModelQueryOptions as b, type ModelProvider as c, type OpenRouterModelsResponse as d, type ModelPricing as e, type ModelCapabilities as f, type OutputModality as g, type ModelDefaults as h, type RequestLimits as i };
+export { type InputModality as I, KNOWN_PROVIDERS as K, type LLMModel as L, type ModelRegistry as M, type OpenRouterModel as O, type RegistryMetadata as R, type SupportedParameter as S, UNKNOWN_PROVIDER as U, type ModelSizeTier as a, type ModelQueryOptions as b, type ModelProvider as c, type OpenRouterModelsResponse as d, type ModelPricing as e, type ModelCapabilities as f, type OutputModality as g, type ModelDefaults as h, type RequestLimits as i, MODEL_ICONS as j, MODEL_COLORS as k, getModelIcon as l, getModelColor as m };

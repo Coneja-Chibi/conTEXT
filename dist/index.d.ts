@@ -1,5 +1,5 @@
-import { O as OpenRouterModel, L as LLMModel, M as ModelRegistry, a as ModelSizeTier, b as ModelQueryOptions, c as ModelProvider } from './types-CdsAPTG3.js';
-export { I as InputModality, K as KNOWN_PROVIDERS, f as ModelCapabilities, h as ModelDefaults, e as ModelPricing, d as OpenRouterModelsResponse, g as OutputModality, R as RegistryMetadata, i as RequestLimits, S as SupportedParameter, U as UNKNOWN_PROVIDER } from './types-CdsAPTG3.js';
+import { O as OpenRouterModel, L as LLMModel, M as ModelRegistry, a as ModelSizeTier, b as ModelQueryOptions, c as ModelProvider } from './types-ym87cI4N.js';
+export { I as InputModality, K as KNOWN_PROVIDERS, k as MODEL_COLORS, j as MODEL_ICONS, f as ModelCapabilities, h as ModelDefaults, e as ModelPricing, d as OpenRouterModelsResponse, g as OutputModality, R as RegistryMetadata, i as RequestLimits, S as SupportedParameter, U as UNKNOWN_PROVIDER, m as getModelColor, l as getModelIcon } from './types-ym87cI4N.js';
 
 /**
  * Model Parser

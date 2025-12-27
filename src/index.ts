@@ -39,7 +39,15 @@ export type {
   RequestLimits,
 } from './types';
 
-export { KNOWN_PROVIDERS, UNKNOWN_PROVIDER } from './types';
+// Branding
+export {
+  KNOWN_PROVIDERS,
+  UNKNOWN_PROVIDER,
+  MODEL_ICONS,
+  MODEL_COLORS,
+  getModelIcon,
+  getModelColor,
+} from './types';
 
 // Parser
 export { transformModel, transformModels, buildRegistry } from './parser';

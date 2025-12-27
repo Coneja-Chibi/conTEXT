@@ -20,7 +20,7 @@ import type {
   OutputModality,
   SupportedParameter,
 } from './types';
-import { KNOWN_PROVIDERS, UNKNOWN_PROVIDER } from './types';
+import { KNOWN_PROVIDERS, getModelIcon, getModelColor } from './types';
 
 // ============================================================================
 // Constants
@@ -43,12 +43,24 @@ function parseModelSlug(modelId: string): string {
   return parts.slice(1).join('/') || modelId;
 }
 
-function getProviderInfo(providerId: string): ModelProvider {
+/**
+ * Get provider info with model-specific icon/color overrides
+ * For models like Claude (uses claude-color icon, not anthropic icon)
+ */
+function getProviderInfo(providerId: string, modelSlug: string): ModelProvider {
   const known = KNOWN_PROVIDERS[providerId];
+
   if (known) {
-    return { id: providerId, ...known };
+    // Apply model-specific overrides (e.g., Claude gets claude-color icon)
+    return {
+      id: providerId,
+      name: known.name,
+      color: getModelColor(modelSlug, providerId),
+      icon: getModelIcon(modelSlug, providerId),
+    };
   }
 
+  // Unknown provider - generate name, use fallback icon
   const generatedName = providerId
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -56,8 +68,9 @@ function getProviderInfo(providerId: string): ModelProvider {
 
   return {
     id: providerId,
-    ...UNKNOWN_PROVIDER,
     name: generatedName,
+    color: getModelColor(modelSlug, providerId),
+    icon: getModelIcon(modelSlug, providerId),
   };
 }
 
@@ -230,19 +243,20 @@ function parseRequestLimits(model: OpenRouterModel): RequestLimits | undefined {
  */
 export function transformModel(raw: OpenRouterModel): LLMModel {
   const providerId = parseProviderId(raw.id);
+  const modelSlug = parseModelSlug(raw.id);
   const now = new Date().toISOString();
 
   return {
     // === Identification ===
     id: raw.id,
-    slug: parseModelSlug(raw.id),
+    slug: modelSlug,
     canonicalSlug: raw.canonical_slug,
     name: raw.name,
     description: raw.description,
     huggingFaceId: raw.hugging_face_id || undefined,
 
-    // === Provider ===
-    provider: getProviderInfo(providerId),
+    // === Provider (with model-specific icon/color overrides) ===
+    provider: getProviderInfo(providerId, modelSlug),
 
     // === Context & Tokens ===
     contextLength: raw.context_length,

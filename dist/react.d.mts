@@ -1,4 +1,4 @@
-import { L as LLMModel, M as ModelRegistry, b as ModelQueryOptions, c as ModelProvider } from './types-CdsAPTG3.mjs';
+import { L as LLMModel, M as ModelRegistry, b as ModelQueryOptions, c as ModelProvider } from './types-ym87cI4N.mjs';
 
 /**
  * React Hooks for LLM Model Registry
