@@ -50,12 +50,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Coneja-Chibi/llm-model-registry.git"
+    "url": "git+https://github.com/Coneja-Chibi/conTEXT.git"
   },
   "bugs": {
-    "url": "https://github.com/Coneja-Chibi/llm-model-registry/issues"
+    "url": "https://github.com/Coneja-Chibi/conTEXT/issues"
   },
-  "homepage": "https://github.com/Coneja-Chibi/llm-model-registry#readme",
+  "homepage": "https://github.com/Coneja-Chibi/conTEXT#readme",
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",

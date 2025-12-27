@@ -16,7 +16,7 @@ Comprehensive database of LLM models with context limits, pricing, and capabilit
 
 ```bash
 # Install directly from GitHub
-npm install github:Coneja-Chibi/llm-model-registry
+npm install github:Coneja-Chibi/conTEXT
 ```
 
 ## Basic Usage
