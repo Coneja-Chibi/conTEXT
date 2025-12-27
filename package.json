@@ -1,7 +1,7 @@
 {
-  "name": "llm-model-registry",
-  "version": "1.0.0",
-  "description": "Comprehensive LLM model registry with context limits, pricing, and capabilities. Auto-updated daily from OpenRouter.",
+  "name": "rolemodel",
+  "version": "1.0.1",
+  "description": "🎭 RoleModel - Comprehensive LLM model registry with context limits, pricing, and capabilities. Auto-updated daily from OpenRouter.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -34,6 +34,7 @@
     "update-snapshot": "node scripts/update-snapshot.mjs"
   },
   "keywords": [
+    "rolemodel",
     "llm",
     "openai",
     "anthropic",
@@ -44,18 +45,19 @@
     "context-length",
     "token-limit",
     "ai-models",
-    "model-registry"
+    "model-registry",
+    "roleplay"
   ],
   "author": "chiev",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Coneja-Chibi/conTEXT.git"
+    "url": "git+https://github.com/Coneja-Chibi/RoleModel.git"
   },
   "bugs": {
-    "url": "https://github.com/Coneja-Chibi/conTEXT/issues"
+    "url": "https://github.com/Coneja-Chibi/RoleModel/issues"
   },
-  "homepage": "https://github.com/Coneja-Chibi/conTEXT#readme",
+  "homepage": "https://github.com/Coneja-Chibi/RoleModel#readme",
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",

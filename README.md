@@ -1,4 +1,4 @@
-# LLM Model Registry
+# 🎭 RoleModel
 
 Comprehensive database of LLM models with context limits, pricing, and capabilities. Auto-updated daily from OpenRouter.
 
@@ -16,13 +16,13 @@ Comprehensive database of LLM models with context limits, pricing, and capabilit
 
 ```bash
 # Install directly from GitHub
-npm install github:Coneja-Chibi/conTEXT
+npm install github:Coneja-Chibi/RoleModel
 ```
 
 ## Basic Usage
 
 ```typescript
-import { fetchRegistry, getContextLimit, formatContextLength } from 'llm-model-registry';
+import { fetchRegistry, getContextLimit, formatContextLength } from 'rolemodel';
 
 // Fetch latest models (with automatic fallback to snapshot)
 const registry = await fetchRegistry();
@@ -39,7 +39,7 @@ console.log(model?.contextLength); // 128000
 ## React Hooks
 
 ```tsx
-import { useModelRegistry, useContextLimit } from 'llm-model-registry/react';
+import { useModelRegistry, useContextLimit } from 'rolemodel/react';
 
 function ModelSelector() {
   const { models, isLoading, queryModels } = useModelRegistry();
@@ -133,7 +133,7 @@ import {
   getTierEmoji,         // "large" → "🦅"
   getBudgetStatus,      // tokens + limit → { status, color, message }
   getStats,             // models → { total, providers, avgContext, ... }
-} from 'llm-model-registry';
+} from 'rolemodel';
 ```
 
 ## How Updates Work
@@ -145,7 +145,7 @@ import {
 
 To get the latest updates in your project, run:
 ```bash
-npm update llm-model-registry
+npm update rolemodel
 ```
 
 The bundled snapshot ensures the package works even if:
