@@ -142,6 +142,26 @@ var KNOWN_PROVIDERS = {
     name: "NVIDIA",
     color: "#76B900",
     icon: "\u{1F7E2}"
+  },
+  "amazon": {
+    name: "Amazon",
+    color: "#FF9900",
+    icon: "\u{1F4E6}"
+  },
+  "ai21": {
+    name: "AI21 Labs",
+    color: "#6366F1",
+    icon: "\u{1F52C}"
+  },
+  "databricks": {
+    name: "Databricks",
+    color: "#FF3621",
+    icon: "\u{1F9F1}"
+  },
+  "inflection": {
+    name: "Inflection",
+    color: "#7C3AED",
+    icon: "\u{1F49C}"
   }
 };
 var UNKNOWN_PROVIDER = {
@@ -151,7 +171,7 @@ var UNKNOWN_PROVIDER = {
 };
 
 // src/parser.ts
-var REGISTRY_VERSION = 1;
+var REGISTRY_VERSION = 2;
 var CACHE_DURATION_MS = 24 * 60 * 60 * 1e3;
 function parseProviderId(modelId) {
   const parts = modelId.split("/");
@@ -176,11 +196,25 @@ function getProviderInfo(providerId) {
 function parsePricing(pricing) {
   const promptPerToken = parseFloat(pricing.prompt) || 0;
   const completionPerToken = parseFloat(pricing.completion) || 0;
+  const requestCost = pricing.request ? parseFloat(pricing.request) : void 0;
+  const imagePerImage = pricing.image ? parseFloat(pricing.image) : void 0;
+  const webSearchCost = pricing.web_search ? parseFloat(pricing.web_search) : void 0;
+  const reasoningPerToken = pricing.internal_reasoning ? parseFloat(pricing.internal_reasoning) : void 0;
+  const cacheReadPerToken = pricing.input_cache_read ? parseFloat(pricing.input_cache_read) : void 0;
+  const cacheWritePerToken = pricing.input_cache_write ? parseFloat(pricing.input_cache_write) : void 0;
   return {
+    // Core pricing (per million)
     promptPerMillion: promptPerToken * 1e6,
     completionPerMillion: completionPerToken * 1e6,
-    imagePerImage: pricing.image ? parseFloat(pricing.image) : void 0,
-    isFree: promptPerToken === 0 && completionPerToken === 0
+    isFree: promptPerToken === 0 && completionPerToken === 0,
+    // Additional costs
+    imagePerImage,
+    requestCost,
+    webSearchCost,
+    reasoningPerMillion: reasoningPerToken ? reasoningPerToken * 1e6 : void 0,
+    // Cache pricing (per million)
+    cacheReadPerMillion: cacheReadPerToken ? cacheReadPerToken * 1e6 : void 0,
+    cacheWritePerMillion: cacheWritePerToken ? cacheWritePerToken * 1e6 : void 0
   };
 }
 function getSizeTier(contextLength) {
@@ -190,32 +224,120 @@ function getSizeTier(contextLength) {
   if (contextLength < 5e5) return "large";
   return "massive";
 }
-function parseCapabilities(model) {
+function parseInputModalities(model) {
+  const raw = model.architecture?.input_modalities;
+  if (raw && Array.isArray(raw)) {
+    return raw.filter(
+      (m) => ["text", "image", "audio", "video", "file"].includes(m)
+    );
+  }
   const modality = model.architecture?.modality || "text";
+  const modalities = ["text"];
+  if (modality.includes("image")) modalities.push("image");
+  if (modality.includes("audio")) modalities.push("audio");
+  if (modality.includes("video")) modalities.push("video");
+  return modalities;
+}
+function parseOutputModalities(model) {
+  const raw = model.architecture?.output_modalities;
+  if (raw && Array.isArray(raw)) {
+    return raw.filter(
+      (m) => ["text", "image", "audio"].includes(m)
+    );
+  }
+  return ["text"];
+}
+function hasParam(model, param) {
+  return model.supported_parameters?.includes(param) ?? false;
+}
+function parseCapabilities(model) {
+  const modalityString = model.architecture?.modality || "text";
+  const inputModalities = parseInputModalities(model);
+  const outputModalities = parseOutputModalities(model);
+  const hasImageInput = inputModalities.includes("image");
+  const hasAudioInput = inputModalities.includes("audio");
+  const hasVideoInput = inputModalities.includes("video");
+  const isMultimodal = hasAudioInput || hasVideoInput || hasImageInput && outputModalities.length > 1;
+  let legacyModality = "text";
+  if (isMultimodal) {
+    legacyModality = "multimodal";
+  } else if (hasImageInput) {
+    legacyModality = "text+image";
+  }
   return {
-    supportsImages: modality.includes("image") || modality === "multimodal",
-    supportsTools: true,
+    // Full modality arrays
+    inputModalities,
+    outputModalities,
+    modalityString,
+    // Feature support (derived from supported_parameters)
+    supportsTools: hasParam(model, "tools") || hasParam(model, "tool_choice"),
+    supportsReasoning: hasParam(model, "reasoning") || hasParam(model, "include_reasoning"),
+    supportsStructuredOutput: hasParam(model, "structured_outputs"),
+    supportsJsonMode: hasParam(model, "response_format"),
     supportsStreaming: true,
+    // OpenRouter supports streaming for all
+    supportsTemperature: hasParam(model, "temperature"),
+    supportsTopP: hasParam(model, "top_p"),
+    supportsTopK: hasParam(model, "top_k"),
+    supportsFrequencyPenalty: hasParam(model, "frequency_penalty"),
+    supportsPresencePenalty: hasParam(model, "presence_penalty"),
+    supportsStopSequences: hasParam(model, "stop"),
+    supportsWebSearch: model.pricing.web_search ? parseFloat(model.pricing.web_search) > 0 : false,
+    // Content moderation
     isModerated: model.top_provider?.is_moderated ?? false,
-    modality: modality.includes("image") ? "text+image" : modality === "multimodal" ? "multimodal" : "text",
+    // Legacy compat
+    supportsImages: hasImageInput,
+    modality: legacyModality,
     instructType: model.architecture?.instruct_type ?? void 0
+  };
+}
+function parseDefaults(model) {
+  const defaults = model.default_parameters;
+  if (!defaults) return {};
+  return {
+    temperature: defaults.temperature,
+    topP: defaults.top_p,
+    topK: defaults.top_k,
+    frequencyPenalty: defaults.frequency_penalty,
+    presencePenalty: defaults.presence_penalty
+  };
+}
+function parseRequestLimits(model) {
+  const limits = model.per_request_limits;
+  if (!limits) return void 0;
+  return {
+    promptTokens: limits.prompt_tokens,
+    completionTokens: limits.completion_tokens
   };
 }
 function transformModel(raw) {
   const providerId = parseProviderId(raw.id);
   const now = (/* @__PURE__ */ new Date()).toISOString();
   return {
+    // === Identification ===
     id: raw.id,
     slug: parseModelSlug(raw.id),
+    canonicalSlug: raw.canonical_slug,
     name: raw.name,
     description: raw.description,
+    huggingFaceId: raw.hugging_face_id || void 0,
+    // === Provider ===
     provider: getProviderInfo(providerId),
+    // === Context & Tokens ===
     contextLength: raw.context_length,
     maxCompletionTokens: raw.max_completion_tokens || raw.top_provider?.max_completion_tokens || Math.min(raw.context_length, 4096),
     sizeTier: getSizeTier(raw.context_length),
+    // === Pricing ===
     pricing: parsePricing(raw.pricing),
+    // === Capabilities ===
     capabilities: parseCapabilities(raw),
+    // === Supported Parameters ===
+    supportedParameters: raw.supported_parameters || [],
+    defaults: parseDefaults(raw),
+    requestLimits: parseRequestLimits(raw),
+    // === Metadata ===
     tokenizer: raw.architecture?.tokenizer,
+    createdAt: raw.created ? new Date(raw.created * 1e3).toISOString() : void 0,
     updatedAt: now
   };
 }
@@ -227,11 +349,13 @@ function transformModels(rawModels) {
 function buildRegistry(models, source = "api") {
   const now = /* @__PURE__ */ new Date();
   const expires = new Date(now.getTime() + CACHE_DURATION_MS);
+  const providerSet = new Set(models.map((m) => m.provider.id));
   const metadata = {
     version: REGISTRY_VERSION,
     fetchedAt: now.toISOString(),
     expiresAt: expires.toISOString(),
     modelCount: models.length,
+    providerCount: providerSet.size,
     source
   };
   const byId = {};
@@ -262,8 +386,43 @@ function buildRegistry(models, source = "api") {
 }
 
 // src/fallback.ts
+function createCapabilities(opts) {
+  const supportsImages = opts.supportsImages ?? false;
+  const modality = opts.modality ?? (supportsImages ? "text+image" : "text");
+  return {
+    inputModalities: supportsImages ? ["text", "image"] : ["text"],
+    outputModalities: ["text"],
+    modalityString: supportsImages ? "text+image->text" : "text->text",
+    supportsTools: opts.supportsTools ?? true,
+    supportsReasoning: opts.supportsReasoning ?? false,
+    supportsStructuredOutput: true,
+    supportsJsonMode: true,
+    supportsStreaming: true,
+    supportsTemperature: true,
+    supportsTopP: true,
+    supportsTopK: false,
+    supportsFrequencyPenalty: true,
+    supportsPresencePenalty: true,
+    supportsStopSequences: true,
+    supportsWebSearch: false,
+    isModerated: opts.isModerated ?? false,
+    supportsImages,
+    modality
+  };
+}
+function createPricing(promptPerMillion, completionPerMillion) {
+  return {
+    promptPerMillion,
+    completionPerMillion,
+    isFree: promptPerMillion === 0 && completionPerMillion === 0
+  };
+}
+var DEFAULT_DEFAULTS = {
+  temperature: 1,
+  topP: 1
+};
 var FALLBACK_MODELS = [
-  // Anthropic
+  // ==================== Anthropic ====================
   {
     id: "anthropic/claude-sonnet-4",
     slug: "claude-sonnet-4",
@@ -272,8 +431,10 @@ var FALLBACK_MODELS = [
     contextLength: 2e5,
     maxCompletionTokens: 64e3,
     sizeTier: "large",
-    pricing: { promptPerMillion: 3, completionPerMillion: 15, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text+image" },
+    pricing: createPricing(3, 15),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools", "tool_choice"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
@@ -284,11 +445,27 @@ var FALLBACK_MODELS = [
     contextLength: 2e5,
     maxCompletionTokens: 8192,
     sizeTier: "large",
-    pricing: { promptPerMillion: 3, completionPerMillion: 15, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text+image" },
+    pricing: createPricing(3, 15),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools", "tool_choice"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // OpenAI
+  {
+    id: "anthropic/claude-opus-4",
+    slug: "claude-opus-4",
+    name: "Claude Opus 4",
+    provider: { id: "anthropic", ...KNOWN_PROVIDERS["anthropic"] },
+    contextLength: 2e5,
+    maxCompletionTokens: 32e3,
+    sizeTier: "large",
+    pricing: createPricing(15, 75),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, supportsReasoning: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools", "tool_choice", "reasoning"],
+    defaults: DEFAULT_DEFAULTS,
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  },
+  // ==================== OpenAI ====================
   {
     id: "openai/gpt-4o",
     slug: "gpt-4o",
@@ -297,8 +474,10 @@ var FALLBACK_MODELS = [
     contextLength: 128e3,
     maxCompletionTokens: 16384,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 2.5, completionPerMillion: 10, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: true, modality: "text+image" },
+    pricing: createPricing(2.5, 10),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, isModerated: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools", "tool_choice", "response_format"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
@@ -309,11 +488,27 @@ var FALLBACK_MODELS = [
     contextLength: 128e3,
     maxCompletionTokens: 4096,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 10, completionPerMillion: 30, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: true, modality: "text+image" },
+    pricing: createPricing(10, 30),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, isModerated: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools", "tool_choice", "response_format"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // Google
+  {
+    id: "openai/o1",
+    slug: "o1",
+    name: "o1",
+    provider: { id: "openai", ...KNOWN_PROVIDERS["openai"] },
+    contextLength: 2e5,
+    maxCompletionTokens: 1e5,
+    sizeTier: "large",
+    pricing: createPricing(15, 60),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, supportsReasoning: true, isModerated: true }),
+    supportedParameters: ["max_tokens", "reasoning"],
+    defaults: {},
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  },
+  // ==================== Google ====================
   {
     id: "google/gemini-2.5-pro-preview",
     slug: "gemini-2.5-pro-preview",
@@ -322,11 +517,28 @@ var FALLBACK_MODELS = [
     contextLength: 1e6,
     maxCompletionTokens: 65536,
     sizeTier: "massive",
-    pricing: { promptPerMillion: 1.25, completionPerMillion: 10, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "multimodal" },
+    pricing: createPricing(1.25, 10),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, modality: "multimodal" }),
+    supportedParameters: ["temperature", "top_p", "top_k", "stop", "max_tokens", "tools"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // DeepSeek
+  {
+    id: "google/gemini-2.0-flash-exp",
+    slug: "gemini-2.0-flash-exp",
+    name: "Gemini 2.0 Flash",
+    provider: { id: "google", ...KNOWN_PROVIDERS["google"] },
+    contextLength: 1e6,
+    maxCompletionTokens: 8192,
+    sizeTier: "massive",
+    pricing: createPricing(0, 0),
+    // Free experimental
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true, modality: "multimodal" }),
+    supportedParameters: ["temperature", "top_p", "top_k", "stop", "max_tokens"],
+    defaults: DEFAULT_DEFAULTS,
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  },
+  // ==================== DeepSeek ====================
   {
     id: "deepseek/deepseek-chat",
     slug: "deepseek-chat",
@@ -335,11 +547,27 @@ var FALLBACK_MODELS = [
     contextLength: 128e3,
     maxCompletionTokens: 8192,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 0.14, completionPerMillion: 0.28, isFree: false },
-    capabilities: { supportsImages: false, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text" },
+    pricing: createPricing(0.14, 0.28),
+    capabilities: createCapabilities({ supportsImages: false, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // Meta
+  {
+    id: "deepseek/deepseek-r1",
+    slug: "deepseek-r1",
+    name: "DeepSeek R1",
+    provider: { id: "deepseek", ...KNOWN_PROVIDERS["deepseek"] },
+    contextLength: 64e3,
+    maxCompletionTokens: 8192,
+    sizeTier: "medium",
+    pricing: createPricing(0.55, 2.19),
+    capabilities: createCapabilities({ supportsImages: false, supportsTools: true, supportsReasoning: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "reasoning"],
+    defaults: DEFAULT_DEFAULTS,
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  },
+  // ==================== Meta ====================
   {
     id: "meta-llama/llama-3.3-70b-instruct",
     slug: "llama-3.3-70b-instruct",
@@ -348,11 +576,13 @@ var FALLBACK_MODELS = [
     contextLength: 131072,
     maxCompletionTokens: 8192,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 0.12, completionPerMillion: 0.3, isFree: false },
-    capabilities: { supportsImages: false, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text" },
+    pricing: createPricing(0.12, 0.3),
+    capabilities: createCapabilities({ supportsImages: false, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // Mistral
+  // ==================== Mistral ====================
   {
     id: "mistralai/mistral-large-2411",
     slug: "mistral-large-2411",
@@ -361,11 +591,13 @@ var FALLBACK_MODELS = [
     contextLength: 128e3,
     maxCompletionTokens: 8192,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 2, completionPerMillion: 6, isFree: false },
-    capabilities: { supportsImages: false, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text" },
+    pricing: createPricing(2, 6),
+    capabilities: createCapabilities({ supportsImages: false, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // Qwen
+  // ==================== Qwen ====================
   {
     id: "qwen/qwen-2.5-72b-instruct",
     slug: "qwen-2.5-72b-instruct",
@@ -374,11 +606,13 @@ var FALLBACK_MODELS = [
     contextLength: 131072,
     maxCompletionTokens: 8192,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 0.35, completionPerMillion: 0.4, isFree: false },
-    capabilities: { supportsImages: false, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text" },
+    pricing: createPricing(0.35, 0.4),
+    capabilities: createCapabilities({ supportsImages: false, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   },
-  // xAI
+  // ==================== xAI ====================
   {
     id: "x-ai/grok-2",
     slug: "grok-2",
@@ -387,8 +621,10 @@ var FALLBACK_MODELS = [
     contextLength: 131072,
     maxCompletionTokens: 8192,
     sizeTier: "medium",
-    pricing: { promptPerMillion: 2, completionPerMillion: 10, isFree: false },
-    capabilities: { supportsImages: true, supportsTools: true, supportsStreaming: true, isModerated: false, modality: "text+image" },
+    pricing: createPricing(2, 10),
+    capabilities: createCapabilities({ supportsImages: true, supportsTools: true }),
+    supportedParameters: ["temperature", "top_p", "stop", "max_tokens", "tools"],
+    defaults: DEFAULT_DEFAULTS,
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   }
 ];
@@ -497,6 +733,21 @@ function queryModels(models, options) {
   }
   if (options.supportsImages !== void 0) {
     results = results.filter((m) => m.capabilities.supportsImages === options.supportsImages);
+  }
+  if (options.supportsTools !== void 0) {
+    results = results.filter((m) => m.capabilities.supportsTools === options.supportsTools);
+  }
+  if (options.supportsReasoning !== void 0) {
+    results = results.filter((m) => m.capabilities.supportsReasoning === options.supportsReasoning);
+  }
+  if (options.supportsStructuredOutput !== void 0) {
+    results = results.filter((m) => m.capabilities.supportsStructuredOutput === options.supportsStructuredOutput);
+  }
+  if (options.inputModality) {
+    const modalities = Array.isArray(options.inputModality) ? options.inputModality : [options.inputModality];
+    results = results.filter(
+      (m) => modalities.some((mod) => m.capabilities.inputModalities.includes(mod))
+    );
   }
   if (options.search) {
     const search = options.search.toLowerCase();

@@ -31,6 +31,12 @@ export type {
   ModelRegistry,
   RegistryMetadata,
   ModelQueryOptions,
+  // New comprehensive types
+  InputModality,
+  OutputModality,
+  SupportedParameter,
+  ModelDefaults,
+  RequestLimits,
 } from './types';
 
 export { KNOWN_PROVIDERS, UNKNOWN_PROVIDER } from './types';

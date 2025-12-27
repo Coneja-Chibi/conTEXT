@@ -4,7 +4,7 @@
  * Helpers for formatting, searching, and working with model data.
  */
 
-import type { LLMModel, ModelSizeTier, ModelProvider, ModelQueryOptions } from './types';
+import type { LLMModel, ModelSizeTier, ModelProvider, ModelQueryOptions, InputModality } from './types';
 
 // ============================================================================
 // Display Formatters
@@ -150,9 +150,31 @@ export function queryModels(models: LLMModel[], options: ModelQueryOptions): LLM
     results = results.filter((m) => m.pricing.isFree === options.isFree);
   }
 
-  // Image support filter
+  // Capability filters
   if (options.supportsImages !== undefined) {
     results = results.filter((m) => m.capabilities.supportsImages === options.supportsImages);
+  }
+
+  if (options.supportsTools !== undefined) {
+    results = results.filter((m) => m.capabilities.supportsTools === options.supportsTools);
+  }
+
+  if (options.supportsReasoning !== undefined) {
+    results = results.filter((m) => m.capabilities.supportsReasoning === options.supportsReasoning);
+  }
+
+  if (options.supportsStructuredOutput !== undefined) {
+    results = results.filter((m) => m.capabilities.supportsStructuredOutput === options.supportsStructuredOutput);
+  }
+
+  // Input modality filter
+  if (options.inputModality) {
+    const modalities: InputModality[] = Array.isArray(options.inputModality)
+      ? options.inputModality
+      : [options.inputModality];
+    results = results.filter((m) =>
+      modalities.some((mod) => m.capabilities.inputModalities.includes(mod))
+    );
   }
 
   // Search filter
@@ -279,6 +301,8 @@ export interface RegistryStats {
   minContext: number;
   freeModels: number;
   imageCapable: number;
+  toolCapable: number;
+  reasoningCapable: number;
 }
 
 /**
@@ -286,7 +310,17 @@ export interface RegistryStats {
  */
 export function getStats(models: LLMModel[]): RegistryStats {
   if (models.length === 0) {
-    return { total: 0, providers: 0, avgContext: 0, maxContext: 0, minContext: 0, freeModels: 0, imageCapable: 0 };
+    return {
+      total: 0,
+      providers: 0,
+      avgContext: 0,
+      maxContext: 0,
+      minContext: 0,
+      freeModels: 0,
+      imageCapable: 0,
+      toolCapable: 0,
+      reasoningCapable: 0,
+    };
   }
 
   const contexts = models.map((m) => m.contextLength);
@@ -300,5 +334,7 @@ export function getStats(models: LLMModel[]): RegistryStats {
     minContext: Math.min(...contexts),
     freeModels: models.filter((m) => m.pricing.isFree).length,
     imageCapable: models.filter((m) => m.capabilities.supportsImages).length,
+    toolCapable: models.filter((m) => m.capabilities.supportsTools).length,
+    reasoningCapable: models.filter((m) => m.capabilities.supportsReasoning).length,
   };
 }

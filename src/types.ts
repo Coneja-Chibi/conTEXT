@@ -1,43 +1,67 @@
 /**
  * LLM Model Registry Types
  *
- * Type definitions for the model registry - context limits, pricing,
- * capabilities, and provider information.
+ * Type definitions for the model registry - capturing ALL data from OpenRouter's API.
+ * Context limits, pricing, capabilities, supported parameters, and provider information.
  */
 
 // ============================================================================
-// OpenRouter API Response Types
+// OpenRouter API Response Types (Raw)
 // ============================================================================
 
 /**
  * Raw model data from OpenRouter's /api/v1/models endpoint
+ * This captures EVERYTHING they expose
  */
 export interface OpenRouterModel {
   id: string;
+  canonical_slug?: string;
   name: string;
   description?: string;
+  created?: number;
   context_length: number;
   max_completion_tokens?: number;
+  hugging_face_id?: string;
+
+  architecture?: {
+    modality: string;
+    input_modalities?: string[];
+    output_modalities?: string[];
+    tokenizer: string;
+    instruct_type?: string | null;
+  };
+
   pricing: {
     prompt: string;
     completion: string;
-    image?: string;
     request?: string;
+    image?: string;
+    web_search?: string;
+    internal_reasoning?: string;
+    input_cache_read?: string;
+    input_cache_write?: string;
   };
+
   top_provider?: {
     context_length?: number;
     max_completion_tokens?: number;
     is_moderated?: boolean;
   };
-  architecture?: {
-    modality: string;
-    tokenizer: string;
-    instruct_type?: string | null;
-  };
+
   per_request_limits?: {
     prompt_tokens?: number;
     completion_tokens?: number;
   } | null;
+
+  supported_parameters?: string[];
+
+  default_parameters?: {
+    temperature?: number | null;
+    top_p?: number | null;
+    frequency_penalty?: number | null;
+    presence_penalty?: number | null;
+    top_k?: number | null;
+  };
 }
 
 export interface OpenRouterModelsResponse {
@@ -59,25 +83,101 @@ export interface ModelProvider {
 }
 
 /**
- * Parsed pricing in more usable format
+ * Parsed pricing - all values converted to per-million tokens for easy math
  */
 export interface ModelPricing {
+  // Core pricing (per million tokens)
   promptPerMillion: number;
   completionPerMillion: number;
-  imagePerImage?: number;
   isFree: boolean;
+
+  // Additional costs
+  imagePerImage?: number;
+  requestCost?: number;
+  webSearchCost?: number;
+  reasoningPerMillion?: number;
+
+  // Cache pricing (per million tokens)
+  cacheReadPerMillion?: number;
+  cacheWritePerMillion?: number;
 }
 
 /**
- * Model capabilities and features
+ * Input/output modalities supported by the model
+ */
+export type InputModality = 'text' | 'image' | 'audio' | 'video' | 'file';
+export type OutputModality = 'text' | 'image' | 'audio';
+
+/**
+ * Model capabilities and features - comprehensive
  */
 export interface ModelCapabilities {
-  supportsImages: boolean;
+  // Input/output modalities
+  inputModalities: InputModality[];
+  outputModalities: OutputModality[];
+  modalityString: string; // Raw "text+image->text" string
+
+  // Feature support (derived from supported_parameters)
   supportsTools: boolean;
+  supportsReasoning: boolean;
+  supportsStructuredOutput: boolean;
+  supportsJsonMode: boolean;
   supportsStreaming: boolean;
+  supportsTemperature: boolean;
+  supportsTopP: boolean;
+  supportsTopK: boolean;
+  supportsFrequencyPenalty: boolean;
+  supportsPresencePenalty: boolean;
+  supportsStopSequences: boolean;
+  supportsWebSearch: boolean;
+
+  // Content moderation
   isModerated: boolean;
+
+  // Legacy compat
+  supportsImages: boolean;
   modality: 'text' | 'text+image' | 'multimodal';
   instructType?: string;
+}
+
+/**
+ * Supported API parameters for this model
+ */
+export type SupportedParameter =
+  | 'include_reasoning'
+  | 'max_tokens'
+  | 'reasoning'
+  | 'response_format'
+  | 'seed'
+  | 'stop'
+  | 'structured_outputs'
+  | 'temperature'
+  | 'tool_choice'
+  | 'tools'
+  | 'top_k'
+  | 'top_p'
+  | 'frequency_penalty'
+  | 'presence_penalty'
+  | 'verbosity'
+  | string; // Allow unknown params
+
+/**
+ * Default parameter values for this model
+ */
+export interface ModelDefaults {
+  temperature?: number | null;
+  topP?: number | null;
+  topK?: number | null;
+  frequencyPenalty?: number | null;
+  presencePenalty?: number | null;
+}
+
+/**
+ * Per-request token limits
+ */
+export interface RequestLimits {
+  promptTokens?: number;
+  completionTokens?: number;
 }
 
 /**
@@ -91,21 +191,40 @@ export type ModelSizeTier =
   | 'massive';  // 500K+
 
 /**
- * The main model type used throughout the library
+ * The main model type - ALL fields from OpenRouter, parsed and typed
  */
 export interface LLMModel {
-  id: string;
-  slug: string;
-  name: string;
+  // === Identification ===
+  id: string;                          // "anthropic/claude-opus-4.5"
+  slug: string;                        // "claude-opus-4.5"
+  canonicalSlug?: string;              // "anthropic/claude-4.5-opus-20251124"
+  name: string;                        // "Anthropic: Claude Opus 4.5"
   description?: string;
+  huggingFaceId?: string;              // Link to HF if open-source
+
+  // === Provider ===
   provider: ModelProvider;
-  contextLength: number;
-  maxCompletionTokens: number;
-  sizeTier: ModelSizeTier;
+
+  // === Context & Tokens ===
+  contextLength: number;               // Total context window
+  maxCompletionTokens: number;         // Max output tokens
+  sizeTier: ModelSizeTier;             // Quick categorization
+
+  // === Pricing ===
   pricing: ModelPricing;
+
+  // === Capabilities ===
   capabilities: ModelCapabilities;
+
+  // === Supported Parameters ===
+  supportedParameters: SupportedParameter[];
+  defaults: ModelDefaults;
+  requestLimits?: RequestLimits;
+
+  // === Metadata ===
   tokenizer?: string;
-  updatedAt: string;
+  createdAt?: string;                  // ISO date when model was added
+  updatedAt: string;                   // ISO date when we fetched this
 }
 
 // ============================================================================
@@ -120,6 +239,7 @@ export interface RegistryMetadata {
   fetchedAt: string;
   expiresAt: string;
   modelCount: number;
+  providerCount: number;
   source: 'api' | 'snapshot' | 'fallback';
 }
 
@@ -143,7 +263,14 @@ export interface ModelQueryOptions {
   maxContext?: number;
   tier?: ModelSizeTier | ModelSizeTier[];
   isFree?: boolean;
+
+  // Capability filters
   supportsImages?: boolean;
+  supportsTools?: boolean;
+  supportsReasoning?: boolean;
+  supportsStructuredOutput?: boolean;
+  inputModality?: InputModality | InputModality[];
+
   search?: string;
   sortBy?: 'context' | 'price' | 'name' | 'provider';
   sortOrder?: 'asc' | 'desc';
@@ -234,6 +361,26 @@ export const KNOWN_PROVIDERS: Record<string, Omit<ModelProvider, 'id'>> = {
     name: 'NVIDIA',
     color: '#76B900',
     icon: '🟢',
+  },
+  'amazon': {
+    name: 'Amazon',
+    color: '#FF9900',
+    icon: '📦',
+  },
+  'ai21': {
+    name: 'AI21 Labs',
+    color: '#6366F1',
+    icon: '🔬',
+  },
+  'databricks': {
+    name: 'Databricks',
+    color: '#FF3621',
+    icon: '🧱',
+  },
+  'inflection': {
+    name: 'Inflection',
+    color: '#7C3AED',
+    icon: '💜',
   },
 };
 

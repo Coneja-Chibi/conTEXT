@@ -1,14 +1,16 @@
-import { O as OpenRouterModel, L as LLMModel, M as ModelRegistry, a as ModelSizeTier, b as ModelQueryOptions, c as ModelProvider } from './types-gSZQjdYi.mjs';
-export { K as KNOWN_PROVIDERS, f as ModelCapabilities, e as ModelPricing, d as OpenRouterModelsResponse, R as RegistryMetadata, U as UNKNOWN_PROVIDER } from './types-gSZQjdYi.mjs';
+import { O as OpenRouterModel, L as LLMModel, M as ModelRegistry, a as ModelSizeTier, b as ModelQueryOptions, c as ModelProvider } from './types-CdsAPTG3.mjs';
+export { I as InputModality, K as KNOWN_PROVIDERS, f as ModelCapabilities, h as ModelDefaults, e as ModelPricing, d as OpenRouterModelsResponse, g as OutputModality, R as RegistryMetadata, i as RequestLimits, S as SupportedParameter, U as UNKNOWN_PROVIDER } from './types-CdsAPTG3.mjs';
 
 /**
  * Model Parser
  *
  * Transforms raw OpenRouter API data into our standardized LLMModel format.
+ * Extracts ALL available data from the API.
  */
 
 /**
  * Transform a single OpenRouter model to LLMModel format
+ * Captures ALL available data
  */
 declare function transformModel(raw: OpenRouterModel): LLMModel;
 /**
@@ -54,6 +56,7 @@ declare function fetchRegistryWithFallback(): Promise<ModelRegistry>;
  * Fallback Models
  *
  * Hardcoded models as ultimate fallback when API and snapshot both fail.
+ * These use the new comprehensive LLMModel schema with all fields.
  */
 
 declare const FALLBACK_MODELS: LLMModel[];
@@ -123,6 +126,8 @@ interface RegistryStats {
     minContext: number;
     freeModels: number;
     imageCapable: number;
+    toolCapable: number;
+    reasoningCapable: number;
 }
 /**
  * Get stats about a model collection
