@@ -1,0 +1,78 @@
+{
+  "name": "@chiev/llm-model-registry",
+  "version": "1.0.0",
+  "description": "Comprehensive LLM model registry with context limits, pricing, and capabilities. Auto-updated daily from OpenRouter.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./snapshot": "./snapshots/latest.json"
+  },
+  "files": [
+    "dist",
+    "snapshots/latest.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "update-snapshot": "node scripts/update-snapshot.mjs",
+    "release": "npm version patch && npm publish --access public"
+  },
+  "keywords": [
+    "llm",
+    "openai",
+    "anthropic",
+    "claude",
+    "gpt",
+    "gemini",
+    "openrouter",
+    "context-length",
+    "token-limit",
+    "ai-models",
+    "model-registry"
+  ],
+  "author": "chiev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiev/llm-model-registry.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chiev/llm-model-registry/issues"
+  },
+  "homepage": "https://github.com/chiev/llm-model-registry#readme",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
