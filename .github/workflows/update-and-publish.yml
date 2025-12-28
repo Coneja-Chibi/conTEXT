@@ -24,6 +24,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Archive current snapshot
+        run: |
+          mkdir -p snapshots/archive
+          if [ -f snapshots/latest.json ]; then
+            DATE=$(date +%Y-%m-%d)
+            # If we already have one for today, add timestamp
+            if [ -f "snapshots/archive/${DATE}.json" ]; then
+              DATETIME=$(date +%Y-%m-%d_%H-%M-%S)
+              cp snapshots/latest.json "snapshots/archive/${DATETIME}.json"
+              echo "Archived to snapshots/archive/${DATETIME}.json"
+            else
+              cp snapshots/latest.json "snapshots/archive/${DATE}.json"
+              echo "Archived to snapshots/archive/${DATE}.json"
+            fi
+          else
+            echo "No existing snapshot to archive"
+          fi
+
       - name: Update snapshot
         run: npm run update-snapshot
 
@@ -49,6 +67,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add snapshots/latest.json dist/
+          git add snapshots/ dist/
           git commit -m "chore: update model snapshot (${{ steps.check.outputs.model_count }} models)"
           git push
