@@ -28,10 +28,10 @@ jobs:
         run: |
           mkdir -p snapshots/archive
           if [ -f snapshots/latest.json ]; then
-            DATE=$(date +%Y-%m-%d)
+            DATE=$(date +%B-%d-%Y)
             # If we already have one for today, add timestamp
             if [ -f "snapshots/archive/${DATE}.json" ]; then
-              DATETIME=$(date +%Y-%m-%d_%H-%M-%S)
+              DATETIME=$(date +%B-%d-%Y_%H-%M-%S)
               cp snapshots/latest.json "snapshots/archive/${DATETIME}.json"
               echo "Archived to snapshots/archive/${DATETIME}.json"
             else
