@@ -31,7 +31,7 @@ var require_latest = __commonJS({
   "snapshots/latest.json"(exports$1, module) {
     module.exports = {
       _meta: {
-        fetchedAt: "2025-12-30T06:41:46.723Z",
+        fetchedAt: "2025-12-31T06:42:00.862Z",
         modelCount: 353,
         providerCount: 58,
         source: "openrouter"
@@ -1591,8 +1591,8 @@ var require_latest = __commonJS({
             instruct_type: null
           },
           pricing: {
-            prompt: "0.000000224",
-            completion: "0.00000032",
+            prompt: "0.00000025",
+            completion: "0.00000038",
             request: "0",
             image: "0",
             web_search: "0",
@@ -1600,7 +1600,7 @@ var require_latest = __commonJS({
           },
           top_provider: {
             context_length: 163840,
-            max_completion_tokens: null,
+            max_completion_tokens: 65536,
             is_moderated: false
           },
           per_request_limits: null,
@@ -1765,8 +1765,8 @@ var require_latest = __commonJS({
             instruct_type: null
           },
           pricing: {
-            prompt: "0.0000003",
-            completion: "0.0000012",
+            prompt: "0.00000025",
+            completion: "0.00000085",
             request: "0",
             image: "0",
             web_search: "0",
@@ -5093,8 +5093,8 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: null
           },
           pricing: {
-            prompt: "0.00000009",
-            completion: "0.0000011",
+            prompt: "0.00000006",
+            completion: "0.0000006",
             request: "0",
             image: "0",
             web_search: "0",
@@ -6552,8 +6552,8 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: null
           },
           pricing: {
-            prompt: "0.000000039",
-            completion: "0.00000019",
+            prompt: "0.00000002",
+            completion: "0.0000001",
             request: "0",
             image: "0",
             web_search: "0",
@@ -6726,8 +6726,8 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: null
           },
           pricing: {
-            prompt: "0.00000003",
-            completion: "0.00000014",
+            prompt: "0.000000016",
+            completion: "0.00000006",
             request: "0",
             image: "0",
             web_search: "0",
@@ -8105,8 +8105,8 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: null
           },
           pricing: {
-            prompt: "0.0000003",
-            completion: "0.0000012",
+            prompt: "0.00000025",
+            completion: "0.00000085",
             request: "0",
             image: "0",
             web_search: "0",
@@ -8852,7 +8852,7 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
           name: "DeepSeek: DeepSeek R1 0528 Qwen3 8B",
           created: 1748538543,
           description: "DeepSeek-R1-0528 is a lightly upgraded release of DeepSeek R1 that taps more compute and smarter post-training tricks, pushing its reasoning and inference to the brink of flagship models like O3 and Gemini 2.5 Pro.\nIt now tops math, programming, and logic leaderboards, showcasing a step-change in depth-of-thought.\nThe distilled variant, DeepSeek-R1-0528-Qwen3-8B, transfers this chain-of-thought into an 8 B-parameter form, beating standard Qwen3 8B by +10 pp and tying the 235 B \u201Cthinking\u201D giant on AIME 2024.",
-          context_length: 32768,
+          context_length: 128e3,
           architecture: {
             modality: "text->text",
             input_modalities: [
@@ -8865,16 +8865,16 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: "deepseek-r1"
           },
           pricing: {
-            prompt: "0.00000002",
-            completion: "0.0000001",
+            prompt: "0.000000048",
+            completion: "0.000000072",
             request: "0",
             image: "0",
             web_search: "0",
             internal_reasoning: "0"
           },
           top_provider: {
-            context_length: 32768,
-            max_completion_tokens: 32768,
+            context_length: 128e3,
+            max_completion_tokens: 32e3,
             is_moderated: false
           },
           per_request_limits: null,
@@ -8885,10 +8885,8 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             "presence_penalty",
             "reasoning",
             "repetition_penalty",
-            "response_format",
             "seed",
             "stop",
-            "structured_outputs",
             "temperature",
             "top_k",
             "top_p"
@@ -11660,7 +11658,7 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
           name: "Google: Gemma 3 27B",
           created: 1741756359,
           description: "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities, including structured outputs and function calling. Gemma 3 27B is Google's latest open source model, successor to [Gemma 2](google/gemma-2-27b-it)",
-          context_length: 96e3,
+          context_length: 131072,
           architecture: {
             modality: "text+image->text",
             input_modalities: [
@@ -11674,16 +11672,16 @@ Additionally, Gemini 2.5 Flash is configurable through the "max tokens for reaso
             instruct_type: "gemma"
           },
           pricing: {
-            prompt: "0.00000004",
-            completion: "0.00000015",
+            prompt: "0.000000036",
+            completion: "0.000000064",
             request: "0",
             image: "0",
             web_search: "0",
             internal_reasoning: "0"
           },
           top_provider: {
-            context_length: 96e3,
-            max_completion_tokens: 96e3,
+            context_length: 131072,
+            max_completion_tokens: null,
             is_moderated: false
           },
           per_request_limits: null,
